@@ -17,6 +17,8 @@ from basicsr.utils import FileClient, imfrombytes, img2tensor, padding, tensor2i
 # from basicsr.utils.options import dict2str
 
 def main():
+    
+    
     # parse options, set distributed setting, set ramdom seed
     opt = parse_options(is_train=False)
     opt['num_gpu'] = torch.cuda.device_count()
