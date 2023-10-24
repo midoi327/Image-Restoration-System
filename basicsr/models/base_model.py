@@ -271,13 +271,13 @@ class BaseModel():
                 Default: 'params'.
         """
         net = self.get_bare_model(net)
-        logger.info(
-            f'Loading {net.__class__.__name__} model from {load_path}.')
+        # logger.info(
+            # f'Loading {net.__class__.__name__} model from {load_path}.')
         load_net = torch.load(
             load_path, map_location=lambda storage, loc: storage)
         if param_key is not None:
             load_net = load_net[param_key]
-        print(' load net keys', load_net.keys)
+        # print(' load net keys', load_net.keys)
         # remove unnecessary 'module.'
         for k, v in deepcopy(load_net).items():
             if k.startswith('module.'):

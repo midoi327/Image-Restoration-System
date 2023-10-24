@@ -21,6 +21,8 @@ import os
 import glob
 import cv2
 from PIL import Image
+from niqe import *
+
 
 os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
@@ -40,6 +42,9 @@ def main():
     files_source = glob.glob(os.path.join('demo','Set12', '*.png')) # 테스트하려는 이미지 
     files_source.sort()
     
+    niqe_test_before = 0 # 노이즈 제거 전 데이터셋 NIQE 평균 점수
+    niqe_test_after = 0 # 노이즈 제거 후 데이터셋 NIQE 평균 점수
+    
     for f in files_source:
         
         ## 1. read image
@@ -54,7 +59,6 @@ def main():
 
         img = img2tensor(img, bgr2rgb=True, float32=True)
         
-        
         ## 2. run inference
         opt['dist'] = False
         model = create_model(opt)
@@ -65,19 +69,44 @@ def main():
             model.grids()
 
         model.test()
-
-        if model.opt['val'].get('grids', False):
-            model.grids_inverse()
-            
+        
         visuals = model.get_current_visuals()
-        sr_img = tensor2img([visuals['result']])
+        sr_img = tensor2img([visuals['result']]) # (256, 256, 3)
+        # print('sr_img 정보:', sr_img.shape) # img.shape: (256, 256, 3)
         # sr_img = Image.fromarray(sr_img)
         
         output_filename = os.path.join(output_path, os.path.basename(f))
         cv2.imwrite(output_filename, sr_img)
+        print(f'saved to {output_filename}')
         
+        
+        ##3. niqe 점수 계산하기
+        
+        # rgb 이미지를 그레이스케일로 변환
+        
+        img_np = (img.cpu().numpy()).transpose(1,2,0)# (256, 256, 3)
 
-    # print(f'inference {input_path} .. finished. saved to {output_filename}')
+        gray_img = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY).astype(np.uint8)
+        gray_sr_img = cv2.cvtColor(sr_img, cv2.COLOR_RGB2GRAY).astype(np.uint8) # (256, 256)
+        
+        
+        niqe_score_before = niqe(gray_img) # shape: (256, 256)
+        niqe_score_after = niqe(gray_sr_img)
+        
+        niqe_test_before += niqe_score_before
+        niqe_test_after += niqe_score_after
+        
+        print(f'전 NIQE: {niqe_score_before: .3f}')
+        print(f'후 NIQE: {niqe_score_after: .3f}')
+        
+        
+        
+    niqe_test_before /= len(files_source)
+    niqe_test_after /= len(files_source)
+    print('\n평균 노이즈 제거 전 NIQE 점수 %.3f' %niqe_test_before)
+    print('평균 노이즈 제거 후 NIQE 점수 %.3f' %niqe_score_after)
+        
+    
 
 if __name__ == '__main__':
     main()
