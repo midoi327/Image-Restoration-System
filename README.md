@@ -7,3 +7,4 @@ POSTECH Institute of Artificial Intelligence Intern Program
 2. 다운로드 후 experiments에 모델 파일 저장
 3. python path 설정 : export PYTHONPATH= /프로젝트디렉토리/:/basicsr모듈디렉토리/
 4. echo $PYTHONPATH : 파이썬 모듈 찾는 경로가 잘 설정되었는지 확인
+5. python setup.py develop --no_cuda_ext : processing dependencies for basicsr 모듈
