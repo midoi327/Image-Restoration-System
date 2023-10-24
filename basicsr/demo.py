@@ -25,19 +25,20 @@ def main():
 
     img_path = opt['img_path'].get('input_img')
     output_path = opt['img_path'].get('output_img')
-
-
+    
     ## 1. read image
     file_client = FileClient('disk')
 
     img_bytes = file_client.get(img_path, None)
+    print('img_bytes 정보:', type(img_bytes))
     try:
         img = imfrombytes(img_bytes, float32=True)
+        print('imfrombytes 정보:', type(img_bytes))
     except:
         raise Exception("path {} not working".format(img_path))
 
     img = img2tensor(img, bgr2rgb=True, float32=True)
-
+    print('img 정보:', type(img), img.shape)
 
 
     ## 2. run inference
