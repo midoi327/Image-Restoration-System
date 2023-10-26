@@ -44,5 +44,5 @@ def create_model(opt):
     model = model_cls(opt)
 
     logger = get_root_logger()
-    logger.info(f'Model [{model.__class__.__name__}] is created.')
+    # logger.info(f'Model [{model.__class__.__name__}] is created.')
     return model

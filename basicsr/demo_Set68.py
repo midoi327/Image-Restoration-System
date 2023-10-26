@@ -36,10 +36,10 @@ def main():
     # img_path = opt['img_path'].get('input_img')
     # output_path = opt['img_path'].get('output_img')
     
-    input_path = os.path.join('demo', 'Set12') # Set12 폴더를 input으로 사용 
-    output_path = os.path.join('demo', 'Output_Set12') # Output 폴더에 denoising 이미지 저장 
+    input_path = os.path.join('demo', 'Set68') # Set12 폴더를 input으로 사용 
+    output_path = os.path.join('demo', 'Output_Set68') # Output 폴더에 denoising 이미지 저장 
 
-    files_source = glob.glob(os.path.join('demo','Set12', '*.png')) # 테스트하려는 이미지 
+    files_source = glob.glob(os.path.join('demo','Set68', '*.png')) # 테스트하려는 이미지 
     files_source.sort()
     
     niqe_test_before = 0 # 노이즈 제거 전 데이터셋 NIQE 평균 점수
@@ -63,7 +63,7 @@ def main():
         opt['dist'] = False
         model = create_model(opt)
         
-        model.feed_data(data={'lq': img.unsqueeze(dim=0)})
+        model.feed_data(data={'lq': img.unsqueeze(dim=0)}) # (1, 481, 321, 3)
         
         if model.opt['val'].get('grids', False):
             model.grids()
@@ -71,8 +71,8 @@ def main():
         model.test()
         
         visuals = model.get_current_visuals()
-        sr_img = tensor2img([visuals['result']]) # (256, 256, 3)
-        # print('sr_img 정보:', sr_img.shape) # img.shape: (256, 256, 3)
+        sr_img = tensor2img([visuals['result']])  # cpu().numpy() 들어있음 
+        # print('sr_img 정보:', sr_img.shape) # img.shape: (481, 321, 3)
         # sr_img = Image.fromarray(sr_img)
         
         output_filename = os.path.join(output_path, os.path.basename(f))
@@ -84,13 +84,11 @@ def main():
         
         # rgb 이미지를 그레이스케일로 변환
         
-        img_np = (img.cpu().numpy()).transpose(1,2,0)# (256, 256, 3)
-
-        gray_img = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY).astype(np.uint8)
-        gray_sr_img = cv2.cvtColor(sr_img, cv2.COLOR_RGB2GRAY).astype(np.uint8) # (256, 256)
+        img_np = img.permute(1,2,0)# torch.Size([481, 321, 3])
+        gray_img= (img_np.cpu().numpy()[:,:,0]*255).astype(np.uint8) # (481, 321)
+        gray_sr_img = (sr_img[:,:,0]*255).astype(np.uint8) # (481, 321)
         
-        
-        niqe_score_before = niqe(gray_img) # shape: (256, 256)
+        niqe_score_before = niqe(gray_img)
         niqe_score_after = niqe(gray_sr_img)
         
         niqe_test_before += niqe_score_before
@@ -99,7 +97,7 @@ def main():
         print(f'전 NIQE: {niqe_score_before: .3f}')
         print(f'후 NIQE: {niqe_score_after: .3f}')
         
-        
+    print('sum:', niqe_test_before, niqe_test_after)
         
     niqe_test_before /= len(files_source)
     niqe_test_after /= len(files_source)

@@ -211,6 +211,8 @@ def niqe(inputImgData):
 
     # M, N = inputImgData.shape[2:4] # 2차원으로 가져오려고 수정 (1, 1, 256, 256)
     M, N = inputImgData.shape
+    # print('InputImage의 shape:', inputImgData.shape)
+    
 
     # assert C == 1, "niqe called with videos containing %d channels. Please supply only the luminance channel" % (C,)
     assert M > (patch_size*2+1), "niqe called with small frame size, requires > 192x192 resolution video using current training parameters"
