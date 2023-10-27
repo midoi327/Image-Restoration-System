@@ -38,7 +38,7 @@ def main():
         raise Exception("path {} not working".format(img_path))
 
     img = img2tensor(img, bgr2rgb=True, float32=True)
-    print('img 정보:', type(img), img.shape)
+    print('img 정보:', img)
 
 
     ## 2. run inference
@@ -49,14 +49,18 @@ def main():
 
     if model.opt['val'].get('grids', False):
         model.grids()
+        print('여기지나감')
 
     model.test()
+    print('모델 테스트 끝남')
 
     if model.opt['val'].get('grids', False):
         model.grids_inverse()
+        print('여기도지나감')
 
-    visuals = model.get_current_visuals()
-    sr_img = tensor2img([visuals['result']])
+    visuals = model.get_current_visuals() 
+    print('///////////////visuals result:', [visuals['result']])
+    sr_img = tensor2img([visuals['result']]) # tensor to list to image
     imwrite(sr_img, output_path)
 
     print(f'inference {img_path} .. finished. saved to {output_path}')
