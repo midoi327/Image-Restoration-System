@@ -23,6 +23,10 @@ from basicsr.utils import (MessageLogger, check_resume, get_env_info,
                            set_random_seed)
 from basicsr.utils.dist_util import get_dist_info, init_dist
 from basicsr.utils.options import dict2str, parse
+import os
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def parse_options(is_train=True):
@@ -147,7 +151,7 @@ def main():
     # parse options, set distributed setting, set ramdom seed
     opt = parse_options(is_train=True)
 
-    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.benchmark = True # 원래 True였음
     # torch.backends.cudnn.deterministic = True
 
     # automatic resume ..
@@ -158,7 +162,7 @@ def main():
     except:
         states = []
 
-    resume_state = None
+    resume_state = None # 이전에 저장된 훈련 상태의 파일이 있는 가 여부
     if len(states) > 0:
         print('!!!!!! resume state .. ', states, state_folder_path)
         max_state_file = '{}.state'.format(max([int(x[0:-6]) for x in states]))

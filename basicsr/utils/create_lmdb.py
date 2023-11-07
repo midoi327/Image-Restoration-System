@@ -88,16 +88,16 @@ def create_lmdb_for_rain13k():
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
 
 def create_lmdb_for_SIDD():
-    folder_path = './datasets/SIDD/train/input_crops'
-    lmdb_path = './datasets/SIDD/train/input_crops.lmdb'
+    folder_path = './datasets/SIDD/val/input_crops' # train / val 원하는 대로 설정
+    lmdb_path = './datasets/SIDD/val/input_crops.lmdb'
 
     img_path_list, keys = prepare_keys(folder_path, 'jpg')
     
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
     print('input crops lmdb 만들기 성공!')
     
-    folder_path = './datasets/SIDD/train/gt_crops'
-    lmdb_path = './datasets/SIDD/train/gt_crops.lmdb'
+    folder_path = './datasets/SIDD/val/gt_crops'
+    lmdb_path = './datasets/SIDD/val/gt_crops.lmdb'
 
     img_path_list, keys = prepare_keys(folder_path, 'png')
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
@@ -105,7 +105,10 @@ def create_lmdb_for_SIDD():
 
     #for val
     '''
-    
+    import cv2
+    import os
+    import scio
+    import tqdm    
     folder_path = './datasets/SIDD/val/input_crops'
     lmdb_path = './datasets/SIDD/val/input_crops.lmdb'
     mat_path = './datasets/SIDD/ValidationNoisyBlocksSrgb.mat'
@@ -134,3 +137,8 @@ def create_lmdb_for_SIDD():
     img_path_list, keys = prepare_keys(folder_path, 'png')
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
     '''
+
+
+# lmdb 만 따로 만드려고
+# if __name__ == '__main__':
+#     create_lmdb_for_SIDD()

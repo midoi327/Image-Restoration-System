@@ -13,4 +13,16 @@ else:
 print("사용하는 장치:", device)
 
 
+import GPUtil
 
+def get_gpu_info():
+    gpu_list = GPUtil.getGPUs()
+    for gpu in gpu_list:
+        print(f"GPU ID: {gpu.id}, GPU Name: {gpu.name}")
+        print(f"GPU Memory Free: {gpu.memoryFree} MB")
+        print(f"GPU Memory Used: {gpu.memoryUsed} MB")
+        print(f"GPU Memory Total: {gpu.memoryTotal} MB")
+
+get_gpu_info()
+
+print(torch.backends.cudnn.version()) # 8700 버전

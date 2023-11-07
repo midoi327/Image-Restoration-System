@@ -21,7 +21,7 @@ def main():
     opt['n_thread'] = 20
     opt['compression_level'] = 3
 
-    opt['input_folder'] = './datasets/SIDD/Data_resized'
+    opt['input_folder'] = './datasets/SIDD/Data_512resized'
     opt['save_folder'] = './datasets/SIDD/train/input_crops'
     opt['crop_size'] = 512
     opt['step'] = 384
@@ -107,15 +107,21 @@ def worker(path, opt):
         w_space = np.append(w_space, w - crop_size)
     # print(img_name, 'h_spce:', h_space, 'w_space:', w_space)
     index = 0
-    for x in h_space:
-        for y in w_space:
-            index += 1
-            cropped_img = img[x:x + crop_size, y:y + crop_size, ...]
-            cropped_img = np.ascontiguousarray(cropped_img)
-            cv2.imwrite(
-                osp.join(opt['save_folder'],
-                         f'{img_name}_s{index:03d}{extension}'), cropped_img,
-                [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
+    # for x in h_space:
+    #     for y in w_space:
+    #         index += 1
+    #         cropped_img = img[x:x + crop_size, y:y + crop_size, ...]
+    #         cropped_img = np.ascontiguousarray(cropped_img)
+    #         cv2.imwrite(
+    #             osp.join(opt['save_folder'],
+    #                      f'{img_name}_s{index:03d}{extension}'), cropped_img, # 원래는 cropped_img
+    #             [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
+
+    cv2.imwrite(
+    osp.join(opt['save_folder'],
+                f'{img_name}_s{extension}'), img, # 원래는 cropped_img
+    [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
+    
     process_info = f'Processing {img_name} ...'
     # print('process info는 다음과 같습니다.', process_info)
     return process_info
