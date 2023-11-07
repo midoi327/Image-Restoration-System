@@ -91,14 +91,17 @@ def create_lmdb_for_SIDD():
     folder_path = './datasets/SIDD/train/input_crops'
     lmdb_path = './datasets/SIDD/train/input_crops.lmdb'
 
-    img_path_list, keys = prepare_keys(folder_path, 'PNG')
+    img_path_list, keys = prepare_keys(folder_path, 'jpg')
+    
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
-
+    print('input crops lmdb 만들기 성공!')
+    
     folder_path = './datasets/SIDD/train/gt_crops'
     lmdb_path = './datasets/SIDD/train/gt_crops.lmdb'
 
-    img_path_list, keys = prepare_keys(folder_path, 'PNG')
+    img_path_list, keys = prepare_keys(folder_path, 'png')
     make_lmdb_from_imgs(folder_path, lmdb_path, img_path_list, keys)
+    print('gt crops lmdb 만들기 성공!')
 
     #for val
     '''

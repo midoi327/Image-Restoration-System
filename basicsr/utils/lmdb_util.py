@@ -18,7 +18,7 @@ def make_lmdb_from_imgs(data_path,
                         keys,
                         batch=5000,
                         compress_level=1,
-                        multiprocessing_read=False,
+                        multiprocessing_read=True,
                         n_thread=40,
                         map_size=None):
     """Make lmdb from images.

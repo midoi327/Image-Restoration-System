@@ -21,16 +21,16 @@ def main():
     opt['n_thread'] = 20
     opt['compression_level'] = 3
 
-    opt['input_folder'] = './datasets/SIDD/Data'
+    opt['input_folder'] = './datasets/SIDD/Data_resized'
     opt['save_folder'] = './datasets/SIDD/train/input_crops'
     opt['crop_size'] = 512
     opt['step'] = 384
     opt['thresh_size'] = 0
-    opt['keywords'] = '_NOISY'
+    opt['keywords'] = 'NOISY_'
     extract_subimages(opt)
 
     opt['save_folder'] = './datasets/SIDD/train/gt_crops'
-    opt['keywords'] = '_GT'
+    opt['keywords'] = 'GT_'
     extract_subimages(opt)
 
     create_lmdb_for_SIDD()
@@ -54,7 +54,7 @@ def extract_subimages(opt):
         # sys.exit(1)
 
     img_list = list(scandir_SIDD(input_folder, keywords=opt['keywords'], recursive=True, full_path=True))
-
+    
     pbar = tqdm(total=len(img_list), unit='image', desc='Extract')
     pool = Pool(opt['n_thread'])
     for path in img_list:
@@ -86,23 +86,26 @@ def worker(path, opt):
     img_name, extension = osp.splitext(osp.basename(path))
 
     img_name = img_name.replace(opt['keywords'], '')
-
+    
     img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-
+    
     if img.ndim == 2:
         h, w = img.shape
     elif img.ndim == 3:
         h, w, c = img.shape
     else:
         raise ValueError(f'Image ndim should be 2 or 3, but got {img.ndim}')
-
+    
+    # print(img_name,'h, w:', h, w)
     h_space = np.arange(0, h - crop_size + 1, step)
+    # print(img_name,'h_space:', h_space)
     if h - (h_space[-1] + crop_size) > thresh_size:
         h_space = np.append(h_space, h - crop_size)
     w_space = np.arange(0, w - crop_size + 1, step)
+    # print(img_name,'w_space:', w_space)
     if w - (w_space[-1] + crop_size) > thresh_size:
         w_space = np.append(w_space, w - crop_size)
-
+    # print(img_name, 'h_spce:', h_space, 'w_space:', w_space)
     index = 0
     for x in h_space:
         for y in w_space:
@@ -114,6 +117,7 @@ def worker(path, opt):
                          f'{img_name}_s{index:03d}{extension}'), cropped_img,
                 [cv2.IMWRITE_PNG_COMPRESSION, opt['compression_level']])
     process_info = f'Processing {img_name} ...'
+    # print('process info는 다음과 같습니다.', process_info)
     return process_info
 
 
