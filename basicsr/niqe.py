@@ -210,7 +210,7 @@ def niqe(inputImgData):
 
 
     # M, N = inputImgData.shape[2:4] # 2차원으로 가져오려고 수정 (1, 1, 256, 256)
-    print('InputImage의 shape:', inputImgData.shape)
+    # print('InputImage의 shape:', inputImgData.shape)
     M, N = inputImgData.shape
 
 
