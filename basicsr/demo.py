@@ -26,19 +26,17 @@ def main():
     img_path = opt['img_path'].get('input_img')
     output_path = opt['img_path'].get('output_img')
     
+    
     ## 1. read image
     file_client = FileClient('disk')
 
     img_bytes = file_client.get(img_path, None)
-    print('img_bytes 정보:', type(img_bytes))
     try:
         img = imfrombytes(img_bytes, float32=True)
-        print('imfrombytes 정보:', type(img_bytes))
     except:
         raise Exception("path {} not working".format(img_path))
 
     img = img2tensor(img, bgr2rgb=True, float32=True)
-    print('img 정보:', img)
 
 
     ## 2. run inference
@@ -49,17 +47,13 @@ def main():
 
     if model.opt['val'].get('grids', False):
         model.grids()
-        print('여기지나감')
 
     model.test()
-    print('모델 테스트 끝남')
 
     if model.opt['val'].get('grids', False):
         model.grids_inverse()
-        print('여기도지나감')
 
     visuals = model.get_current_visuals() 
-    print('///////////////visuals result:', [visuals['result']])
     sr_img = tensor2img([visuals['result']]) # tensor to list to image
     imwrite(sr_img, output_path)
 
