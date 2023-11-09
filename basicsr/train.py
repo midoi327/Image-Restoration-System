@@ -29,10 +29,10 @@ os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
-def parse_options(is_train=True):
+def parse_options(opt, is_train=True):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-opt', type=str, required=True, help='Path to option YAML file.')
+    # parser.add_argument(
+    #     '-opt', type=str, required=False, help='Path to option YAML file.') # 원래 required True였음
     parser.add_argument(
         '--launcher',
         choices=['none', 'pytorch', 'slurm'],
@@ -44,7 +44,7 @@ def parse_options(is_train=True):
     parser.add_argument('--output_path', type=str, required=False, help='The path to the output image. For single image inference only.')
 
     args = parser.parse_args()
-    opt = parse(args.opt, is_train=is_train)
+    opt = parse(opt, is_train=is_train)
 
     # distributed settings
     if args.launcher == 'none':

@@ -6,22 +6,10 @@
 # ------------------------------------------------------------------------
 import torch
 import numpy as np
-# from basicsr.data import create_dataloader, create_dataset
 import basicsr.models
 from basicsr.models import create_model
 from basicsr.train import parse_options
 from basicsr.utils import FileClient, imfrombytes, img2tensor, padding, tensor2img, imwrite
-
-# from basicsr.utils import (get_env_info, get_root_logger, get_time_str,
-#                            make_exp_dirs)
-# from basicsr.utils.options import dict2str
-
-
-# basicsr 모듈 설치 (터미널에 순서대로)
-# export PYTHONPATH=/home/piai/문서/miryeong/NAFNet/NAFNet_Image-denoising/:/home/piai/문서/miryeong/NAFNet/NAFNet_Image-denoising/basicsr
-# python setup.py develop --no_cuda_ext
-# python basicsr/demo_FID300_segmentation.py -opt options/test/SIDD/NAFNet-width32.yml --input_path ./demo/noisy.png --output_path ./demo/denoise_img.png
-
 import os
 import glob
 import cv2
@@ -29,23 +17,18 @@ from PIL import Image
 from niqe import *
 
 
+# basicsr 모듈 설치 (터미널에 순서대로)
+# export PYTHONPATH=/home/piai/문서/miryeong/NAFNet/NAFNet_Image-denoising/:/home/piai/문서/miryeong/NAFNet/NAFNet_Image-denoising/basicsr
+# python setup.py develop --no_cuda_ext
+# python basicsr/demo_FID300_segmentation.py -opt options/test/SIDD/NAFNet-width32.yml --input_path ./demo/noisy.png --output_path ./demo/denoise_img.png
+os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+
 def normalize(data):
     return data/255.
 
-os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
-def main():
-    
-    
-    # parse options, set distributed setting, set ramdom seed
-    opt = parse_options(is_train=False)
-    opt['num_gpu'] = torch.cuda.device_count()
-    
-    input_path = os.path.join('demo', 'Deblurring_in') # Set12 폴더를 input으로 사용 
-    output_path = os.path.join('demo', 'Deblurring_out') # Output 폴더에 denoising 이미지 저장 
-
-    files_source = glob.glob(os.path.join(input_path, '*')) # 테스트하려는 이미지 
-    files_source.sort()
+def inference(output_path, files_source, opt):
     
     niqe_test_before = 0 # 노이즈 제거 전 데이터셋 NIQE 평균 점수
     niqe_test_after = 0 # 노이즈 제거 후 데이터셋 NIQE 평균 점수
@@ -80,12 +63,10 @@ def main():
         
         visuals = model.get_current_visuals()
         sr_img = tensor2img([visuals['result']])  # cpu().numpy() 들어있음 
-        # print('sr_img 정보:', sr_img.shape) # img.shape: (481, 321, 3)
-        # sr_img = Image.fromarray(sr_img)
         
         output_filename = os.path.join(output_path, os.path.basename(f))
         cv2.imwrite(output_filename, sr_img)
-        print(f'saved to {output_filename}')
+        print(f'{f}가 저장되었습니다.')
         
         
         ##3. niqe 점수 계산하기
@@ -93,17 +74,17 @@ def main():
         # rgb 이미지를 그레이스케일로 변환
         
         img_np = img.permute(1,2,0)# torch.Size([481, 321, 3])
-        # gray_img= (img_np.cpu().numpy()[:,:,0]*255).astype(np.uint8) # (481, 321)
         gray_img= (img_np.cpu().numpy()[:,:,:]*255).astype(np.uint8)
         gray_sr_img = (sr_img[:,:,:]*255).astype(np.uint8) # (481, 321)
         
-        gray_img = np.array(Image.fromarray(cv2.cvtColor(gray_img, cv2.COLOR_BGR2RGB)).convert('L'))
+        gray_img = np.array(Image.fromarray(cv2.cvtColor(gray_img, cv2.COLOR_BGR2RGB)).convert('L')) # 회색 이미지로 변경
         gray_sr_img = np.array(Image.fromarray(cv2.cvtColor(gray_sr_img, cv2.COLOR_BGR2RGB)).convert('L'))
+        
         
         height, width = gray_sr_img.shape # 만약 192x192 보다 크기가 작다면, 해당 값을 200으로 수정
         # 이미지 크기가 193 이하인 경우 조정
         if width <= 193 or height <= 193:
-            print(f'{f}이미지의 크기를 조정합니다.')
+            # print(f'{f}이미지의 크기를 조정합니다.')
             width = max(width, 200)
             height = max(height, 200)
             
@@ -123,18 +104,66 @@ def main():
         print(f'후 NIQE: {niqe_score_after: .3f}')
         
         if niqe_score_after <= min_niqe_score:
-            print(f'{f}의 NIQE 점수는 {niqe_score_after}로 최저 점수를 갱신하였습니다.')
+            # print(f'{f}의 NIQE 점수는 {niqe_score_after}로 최저 점수를 갱신하였습니다.')
             min_filename = f
             min_niqe_score = niqe_score_after
             
-
-        
     niqe_test_before /= len(files_source)
     niqe_test_after /= len(files_source)
-    print('\n평균 노이즈 제거 전 NIQE 점수 %.3f' %niqe_test_before)
-    print('평균 노이즈 제거 후 NIQE 점수 %.3f' %niqe_test_after)
+    
     print(f'최소 NIQE 점수: {min_filename}이미지의 {min_niqe_score}점')
+    
+    return niqe_test_before, niqe_test_after
+    
+      
+
+def main():
+    
+    input_path = os.path.join('demo', 'Multi_in') # Input path: Multi_in 폴더
+    output_path = os.path.join('demo', 'Multi_out') # Output path: Multi_out 폴더
+
+    files_source = glob.glob(os.path.join(input_path, '*')) # 테스트하려는 이미지 
+    files_source.sort()
+    
+    
+    # 원하는 옵션 선택 1:denoising 2:deblurring 3:둘다
+    mode = int(input('어떤 작업을 실행하시겠습니까? 원하는 옵션을 입력하세요. 1:denosing 2:deblurring 3:둘다\n'))
+    if mode == 1:
+        opt = 'options/test/SIDD/NAFNet-width32.yml' # denoising
+        opt = parse_options(opt, is_train=False)
+        # parse options, set distributed setting, set ramdom seed
+        opt['num_gpu'] = torch.cuda.device_count()
+        niqe_before, niqe_after = inference(output_path, files_source, opt)
+        print('denoising 작업이 완료되었습니다.')
         
+    elif mode == 2:
+        opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
+        opt = parse_options(opt, is_train=False)
+        opt['num_gpu'] = torch.cuda.device_count()
+        niqe_before, niqe_after = inference(output_path, files_source, opt)
+        print('deblurring 작업이 완료되었습니다.')
+        
+    elif mode == 3:
+        opt = 'options/test/SIDD/NAFNet-width32.yml' # denoising
+        opt = parse_options(opt, is_train=False)
+        opt['num_gpu'] = torch.cuda.device_count()
+        niqe_before, niqe_after = inference(output_path, files_source, opt)
+        
+        print('denoising 작업이 완료되었습니다. deblurring 작업을 시작합니다.')
+        
+        # denoising 작업 완료 된 폴더를 다시 deblurring 의 input으로 사용
+        input_path = os.path.join('demo', 'Multi_out')
+        output_path = os.path.join('demo', 'Multi_out')
+        files_source = glob.glob(os.path.join(input_path, '*'))
+        files_source.sort()
+        
+        opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
+        opt = parse_options(opt, is_train=False)
+        niqe_before, niqe_after = inference(output_path, files_source, opt)
+        print('deblurring 작업이 완료되었습니다.')
+    
+
+    print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
     
 
 if __name__ == '__main__':
