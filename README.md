@@ -9,16 +9,33 @@ Image denosing with NAFNet https://github.com/megvii-research/NAFNet
 ---
 
 
-**Required:**
+# **Required:**
 **demo.py 실행시키기 위한 준비 과정**
 1. pretrained models 다운로드 https://github.com/megvii-research/NAFNet/#results-and-pre-trained-models:~:text=the%20predicted%20image-,pretrained%20models,-should%20be%20downloaded
 2. 다운로드 후 experiments에 모델 파일 저장
-3. python path 설정 : export PYTHONPATH= /프로젝트디렉토리/:/basicsr모듈디렉토리/
-4. echo $PYTHONPATH : 파이썬 모듈 찾는 경로가 잘 설정되었는지 확인
-5. python setup.py develop --no_cuda_ext : processing dependencies for basicsr 모듈
+3. python path 설정 : ```export PYTHONPATH= /프로젝트디렉토리/:/basicsr모듈디렉토리/```
+4. ```echo $PYTHONPATH``` : 파이썬 모듈 찾는 경로가 잘 설정되었는지 확인
+5. ```python setup.py develop --no_cuda_ext``` : processing dependencies for basicsr 모듈
 
 
 ---
+
+# **Quick Start**
+**denoising, deblurring 옵션을 원하는 대로 선택하는 demo.Multi.py 사용 방법**
+
+1. Required 실행 조건 만족
+2. demo/Multi_in 폴더에 노이즈 이미지 넣어놓기
+3. 
+```ruby 
+python basicsr/demo_Multi.py
+``` 
+4. ***1: denoising , 2: deblurring, 3: 둘다***  옵션 중 원하는 옵션 입력
+5. demo/Multi_out 폴더에 작업 후 이미지 생성됨
+
+
+
+---
+
 
 **🏆 평가 지표**
 
