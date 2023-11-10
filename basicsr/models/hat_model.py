@@ -10,9 +10,20 @@ import math
 from tqdm import tqdm
 from os import path as osp
 
+
+from basicsr.models.archs import define_network
+from copy import deepcopy
+
 @MODEL_REGISTRY.register()
 class HATModel(SRModel):
 
+    def __init__(self, opt): # 원래 없었는데 없으면 base_model.py 로 감
+        super(HATModel, self).__init__(opt)
+        
+        # define network
+        self.net_g = define_network(deepcopy(opt['network_g']))
+        self.net_g = self.model_to_device(self.net_g)
+        
     def pre_process(self):
         # pad to multiplication of window_size
         window_size = self.opt['network_g']['window_size']

@@ -47,5 +47,23 @@ def create_model(opt):
     model = model_cls(opt)
 
     logger = get_root_logger()
+    # logger.info(f'Model [{model.__class__.__name__}] is created.')
+    return model
+
+
+########## HAT 모델 추가 ############
+from copy import deepcopy
+from basicsr.utils.registry import MODEL_REGISTRY
+def build_model(opt):
+    """Build model from options.
+
+    Args:
+        opt (dict): Configuration. It must contain:
+            model_type (str): Model type.
+    """
+    opt = deepcopy(opt)
+    
+    model = MODEL_REGISTRY.get(opt['model_type'])(opt) # 원래 type 이었음
+    logger = get_root_logger()
     logger.info(f'Model [{model.__class__.__name__}] is created.')
     return model

@@ -48,6 +48,9 @@ def dynamic_instantiation(modules, cls_type, opt):
 
 
 def define_network(opt):
+    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwww', opt)
     network_type = opt.pop('type')
     net = dynamic_instantiation(_arch_modules, network_type, opt)
     return net
+
+

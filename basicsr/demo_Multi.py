@@ -17,12 +17,18 @@ from PIL import Image
 from niqe import *
 
 
+from os import path as osp
+from basicsr.utils import get_env_info, get_root_logger, get_time_str, make_exp_dirs
+import logging
+from basicsr.utils.options import dict2str
+from basicsr.data import create_dataloader, create_dataset
+from basicsr.models import build_model
+
 # basicsr 모듈 설치 (터미널에 순서대로)
 # export PYTHONPATH=/home/piai/문서/miryeong/Multi/:/home/piai/문서/miryeong/Multi/basicsr
 # python setup.py develop --no_cuda_ext
 # python basicsr/demo_Multi.py
-os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
 
 
 def normalize(data):
@@ -155,7 +161,41 @@ def hat(output_path, files_source, opt):
     return 1
 
 
+def test_pipeline(opt, root_path):
+    torch.backends.cudnn.benchmark = True
+    # mkdir and initialize loggers
+    make_exp_dirs(opt)
+    log_file = osp.join(opt['path']['log'], f"test_{opt['name']}_{get_time_str()}.log")
+    logger = get_root_logger(logger_name='basicsr', log_level=logging.INFO, log_file=log_file)
+    # logger.info(get_env_info())
+    # logger.info(dict2str(opt))
+
+    # create test dataset and dataloader
+    test_loaders = []
+    for _, dataset_opt in sorted(opt['datasets'].items()):
+        test_set = create_dataset(dataset_opt)
+        test_loader = create_dataloader(
+            test_set, dataset_opt, num_gpu=opt['num_gpu'], dist=opt['dist'], sampler=None, seed=opt['manual_seed'])
+        logger.info(f"Number of test images in {dataset_opt['name']}: {len(test_set)}")
+        test_loaders.append(test_loader)
+    
+    model = build_model(opt)
+    
+    
+    for test_loader in test_loaders:
+        test_set_name = test_loader.dataset.opt['name']
+        logger.info(f'Testing {test_set_name}...')
+        model.validation(test_loader, current_iter=opt['name'], tb_logger=None, save_img=opt['val']['save_img'])
+
+
+    
+    return 1
+
+
+
 def main():
+    os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     
     input_path = os.path.join('demo', 'Multi_in') # Input path: Multi_in 폴더
     output_path = os.path.join('demo', 'Multi_out') # Output path: Multi_out 폴더
@@ -173,6 +213,9 @@ def main():
         opt['num_gpu'] = torch.cuda.device_count()
         niqe_before, niqe_after = nafnet(output_path, files_source, opt)
         
+        print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+    
+
         
     elif mode == 2:
         opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
@@ -181,16 +224,25 @@ def main():
         niqe_before, niqe_after = nafnet(output_path, files_source, opt)
         print('deblurring 작업이 완료되었습니다.')
         
+        print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+    
+
+        
+    # elif mode == 3:
+    #     opt = 'options/test/HAT/HAT_SRx4_ImageNet-LR.yml' # super resolution
+    #     opt = parse_options(opt, is_train=False)
+    #     opt['num_gpu'] = torch.cuda.device_count()
+    #     niqe_before, niqe_after = hat(output_path, files_source, opt)
+    #     print('super resolution 작업이 완료되었습니다.')
+    
     elif mode == 3:
         opt = 'options/test/HAT/HAT_SRx4_ImageNet-LR.yml' # super resolution
         opt = parse_options(opt, is_train=False)
         opt['num_gpu'] = torch.cuda.device_count()
-        niqe_before, niqe_after = hat(output_path, files_source, opt)
+        root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
+        test_pipeline(opt, root_path)
         print('super resolution 작업이 완료되었습니다.')
-    
-
-    print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
-    
+        
 
 if __name__ == '__main__':
     main()

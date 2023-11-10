@@ -64,6 +64,7 @@ class Registry():
 
     def get(self, name, suffix='basicsr'):
         ret = self._obj_map.get(name)
+
         if ret is None:
             ret = self._obj_map.get(name + '_' + suffix)
             print(f'Name {name} is not found, use name: {name}_{suffix}!')
@@ -82,7 +83,7 @@ class Registry():
 
 
 DATASET_REGISTRY = Registry('dataset')
-ARCH_REGISTRY = Registry('arch') # 원래 arch 였음
-MODEL_REGISTRY = Registry('model')
+ARCH_REGISTRY = Registry('arch')
+MODEL_REGISTRY = Registry('MODEL')
 LOSS_REGISTRY = Registry('loss')
 METRIC_REGISTRY = Registry('metric')

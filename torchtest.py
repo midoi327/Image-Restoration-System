@@ -26,3 +26,6 @@ def get_gpu_info():
 get_gpu_info()
 
 print(torch.backends.cudnn.version()) # 8700 버전
+print(torch.cuda.memory_allocated())
+print(torch.cuda.max_memory_allocated())
+torch.cuda.empty_cache()
