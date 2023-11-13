@@ -8,7 +8,7 @@
 
 ---
 
-# 시스템 구조도
+## 시스템 구조도
 ![1231241 (1)](https://github.com/midoi327/Image-Restoration-System/assets/50612011/6c351445-94dd-4986-93a2-e1bb8f871a3f)
 
 
@@ -16,7 +16,7 @@
 ---
 
 
-# **Required**
+## **Required**
 **demo_Multi.py 실행시키기 위한 준비 과정**
 1. **NAFNet pretrained model** 다운로드 ```NAFNet-width32.yml```
 2. **HAT pretrained model** 다운로드 ```HAT_SRx4_ImageNet-pretrain.pth```
@@ -30,7 +30,7 @@
 
 ---
 
-# **Quick Start**
+## **Quick Start**
 **denoising, deblurring 옵션을 원하는 대로 선택하는 demo.Multi.py 사용 방법**
 
 1. Required 실행 조건 만족
