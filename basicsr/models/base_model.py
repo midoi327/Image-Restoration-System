@@ -51,11 +51,12 @@ class BaseModel():
             rgb2bgr (bool): Whether to save images using rgb2bgr. Default: True
             use_image (bool): Whether to use saved images to compute metrics (PSNR, SSIM), if not, then use data directly from network' output. Default: True
         """
+        # base_model.py 의 nondist_validation parameter 수에 맞게 변경 (7개 -> 5개)
         if self.opt['dist']:
-            return self.dist_validation(dataloader, current_iter, tb_logger, save_img, rgb2bgr, use_image)
+            return self.dist_validation(dataloader, current_iter, tb_logger, save_img)
         else:
-            return self.nondist_validation(dataloader, current_iter, tb_logger,
-                                    save_img, rgb2bgr, use_image)
+            return self.nondist_validation(dataloader, current_iter, tb_logger, 
+                                    save_img)
 
     def get_current_log(self):
         return self.log_dict

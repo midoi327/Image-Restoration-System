@@ -48,9 +48,21 @@ def dynamic_instantiation(modules, cls_type, opt):
 
 
 def define_network(opt):
-    print('wwwwwwwwwwwwwwwwwwwwwwwwwwwww', opt)
     network_type = opt.pop('type')
     net = dynamic_instantiation(_arch_modules, network_type, opt)
     return net
 
 
+############# HAT 모델 추가 ################
+
+from copy import deepcopy
+from basicsr.utils import get_root_logger, scandir
+from basicsr.utils.registry import ARCH_REGISTRY
+
+def build_network(opt):
+    opt = deepcopy(opt)
+    network_type = opt.pop('type')
+    net = ARCH_REGISTRY.get(network_type)(**opt)
+    logger = get_root_logger()
+    logger.info(f'Network [{net.__class__.__name__}] is created.')
+    return net

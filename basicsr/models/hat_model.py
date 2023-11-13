@@ -5,7 +5,7 @@ from basicsr.utils.registry import MODEL_REGISTRY
 from basicsr.models.sr_model import SRModel
 from basicsr.metrics import calculate_metric
 from basicsr.utils import imwrite, tensor2img
-
+import os
 import math
 from tqdm import tqdm
 from os import path as osp
@@ -17,12 +17,12 @@ from copy import deepcopy
 @MODEL_REGISTRY.register()
 class HATModel(SRModel):
 
-    def __init__(self, opt): # 원래 없었는데 없으면 base_model.py 로 감
-        super(HATModel, self).__init__(opt)
-        
-        # define network
-        self.net_g = define_network(deepcopy(opt['network_g']))
-        self.net_g = self.model_to_device(self.net_g)
+    # def __init__(self, opt): # 원래 없었는데 없으면 base_model.py 로 감
+    #     super(HATModel, self).__init__(opt)
+    #     print('내가알고싶은것', opt)
+    #     # define network
+    #     self.net_g = define_network(deepcopy(opt['network_g']))
+    #     self.net_g = self.model_to_device(self.net_g)
         
     def pre_process(self):
         # pad to multiplication of window_size
@@ -164,16 +164,17 @@ class HATModel(SRModel):
             del self.output
             torch.cuda.empty_cache()
 
+            output_path = os.path.join('demo', 'Multi_out')
             if save_img:
                 if self.opt['is_train']:
-                    save_img_path = osp.join(self.opt['path']['visualization'], img_name,
+                    save_img_path = osp.join(output_path, img_name, # 원래 self.opt['path']['visualization'] 였음
                                              f'{img_name}_{current_iter}.png')
                 else:
                     if self.opt['val']['suffix']:
-                        save_img_path = osp.join(self.opt['path']['visualization'], dataset_name,
+                        save_img_path = osp.join(output_path,
                                                  f'{img_name}_{self.opt["val"]["suffix"]}.png')
                     else:
-                        save_img_path = osp.join(self.opt['path']['visualization'], dataset_name,
+                        save_img_path = osp.join(output_path,
                                                  f'{img_name}_{self.opt["name"]}.png')
                 imwrite(sr_img, save_img_path)
 

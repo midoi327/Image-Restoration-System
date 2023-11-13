@@ -120,48 +120,8 @@ def nafnet(output_path, files_source, opt):
     print(f'최소 NIQE 점수: {min_filename}이미지의 {min_niqe_score}점')
 
     return niqe_test_before, niqe_test_after
-    
-      
-def hat(output_path, files_source, opt):
-    
-    for f in files_source:
-        
-        ## 1. read image
-        file_client = FileClient('disk')
-        img_bytes = file_client.get(f, None)
-        
-        try:
-            img = imfrombytes(img_bytes, float32=True)
-            
-            
-        except:
-            raise Exception("path {} not working".format(f))
 
-        img = img2tensor(img, bgr2rgb=True, float32=True)
-        
-        
-        ## 2. run inference
-        opt['dist'] = False
-        model = create_model(opt)
-        
-        model.feed_data(data={'lq': img.unsqueeze(dim=0)}) # (1, 481, 321, 3)
-        
-        if model.opt['val'].get('grids', False):
-            model.grids()
-
-        model.test()
-        
-        visuals = model.get_current_visuals()
-        sr_img = tensor2img([visuals['result']])  # cpu().numpy() 들어있음 
-        
-        output_filename = os.path.join(output_path, os.path.basename(f))
-        cv2.imwrite(output_filename, sr_img)
-        print(f'{f}가 저장되었습니다.')
-        
-    return 1
-
-
-def test_pipeline(opt, root_path):
+def hat(opt):
     torch.backends.cudnn.benchmark = True
     # mkdir and initialize loggers
     make_exp_dirs(opt)
@@ -181,12 +141,10 @@ def test_pipeline(opt, root_path):
     
     model = build_model(opt)
     
-    
     for test_loader in test_loaders:
         test_set_name = test_loader.dataset.opt['name']
         logger.info(f'Testing {test_set_name}...')
         model.validation(test_loader, current_iter=opt['name'], tb_logger=None, save_img=opt['val']['save_img'])
-
 
     
     return 1
@@ -227,20 +185,10 @@ def main():
         print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
     
 
-        
-    # elif mode == 3:
-    #     opt = 'options/test/HAT/HAT_SRx4_ImageNet-LR.yml' # super resolution
-    #     opt = parse_options(opt, is_train=False)
-    #     opt['num_gpu'] = torch.cuda.device_count()
-    #     niqe_before, niqe_after = hat(output_path, files_source, opt)
-    #     print('super resolution 작업이 완료되었습니다.')
-    
     elif mode == 3:
         opt = 'options/test/HAT/HAT_SRx4_ImageNet-LR.yml' # super resolution
         opt = parse_options(opt, is_train=False)
-        opt['num_gpu'] = torch.cuda.device_count()
-        root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
-        test_pipeline(opt, root_path)
+        hat(opt)
         print('super resolution 작업이 완료되었습니다.')
         
 
