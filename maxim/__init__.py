@@ -307,8 +307,22 @@ def save_img(img, pth):
       before saved to pth.
     pth: string, path to save the image to.
   """
-  Image.fromarray(np.array(
-      (np.clip(img, 0., 1.) * 255.).astype(jnp.uint8))).save(pth, 'PNG')
+  # Image.fromarray(np.array(
+  #     (np.clip(img, 0., 1.) * 255.).astype(jnp.uint8))).save(pth, 'PNG')
+  # Clip the image to [0, 1] and convert to uint8
+  img = np.clip(img, 0., 1.) * 255.0
+  img = img.astype(np.uint8)
+  
+  # Determine the file format based on the file extension
+  _, extension = os.path.splitext(pth.lower())
+  if extension == '.png':
+      Image.fromarray(img).save(pth, 'PNG')
+  elif extension == '.jpg' or extension == '.jpeg':
+      Image.fromarray(img).save(pth, 'JPEG')
+  else:
+      # If the file extension is not recognized, default to saving as PNG
+      Image.fromarray(img).save(pth, 'PNG')
+
 
 
 def make_shape_even(image):

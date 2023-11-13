@@ -27,10 +27,11 @@ from basicsr.models import build_model
 
 from maxim import run_maxim
 
-# basicsr 모듈 설치 (터미널에 순서대로)
-# export PYTHONPATH=/home/piai/문서/miryeong/Multi/:/home/piai/문서/miryeong/Multi/basicsr
-# python setup.py develop --no_cuda_ext
-# python basicsr/demo_Multi.py
+# (터미널에 순서대로)
+# $export PYTHONPATH=/home/piai/문서/miryeong/Multi/:/home/piai/문서/miryeong/Multi/basicsr
+# basicsr 모델 모듈 설치 $python setup_basicsr.py develop --no_cuda_ext
+# maxim 모델 모듈 설치 $python setup_maxim.py devleop 
+# $python basicsr/demo_Multi.py
 
 
 
@@ -175,7 +176,7 @@ def main():
         opt['num_gpu'] = torch.cuda.device_count()
         niqe_before, niqe_after = nafnet(output_path, files_source, opt)
         
-        print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+        # print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
     
     elif mode == 2:
         opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
@@ -184,7 +185,7 @@ def main():
         niqe_before, niqe_after = nafnet(output_path, files_source, opt)
         print('deblurring 작업이 완료되었습니다.')
         
-        print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+        # print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
     
 
     elif mode == 3:
@@ -195,7 +196,7 @@ def main():
         
     
     elif mode == 4:
-        maxim()
+        maxim() # dehazing
         print('dehazing 작업이 완료되었습니다.')
         
         
