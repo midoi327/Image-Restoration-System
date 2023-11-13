@@ -38,7 +38,7 @@ flags.DEFINE_enum(
     enum_values=['Denoising', 'Deblurring', 'Deraining', 'Dehazing', 'Enhancement'],
     help='Task to run.')
 flags.DEFINE_string('ckpt_path', default='experiments/pretrained_models/maxim_ckpt_Dehazing_SOTS-Outdoor_checkpoint.npz', help='Path to checkpoint.')
-flags.DEFINE_string('input_dir', default='/home/piai/문서/miryeong/Multi/demo/Multi_in', help='Input dir to the test set.')
+flags.DEFINE_string('input_dir', default='/home/piai/문서/miryeong/Multi/demo/Multi_out', help='Input dir to the test set.')
 flags.DEFINE_string('output_dir', default='/home/piai/문서/miryeong/Multi/demo/Multi_out', help='Output dir to store predicted images.')
 flags.DEFINE_boolean('has_target', default=False, help='Whether has corresponding gt image.')
 flags.DEFINE_boolean('save_images', default=True, help='Dump predicted images.')

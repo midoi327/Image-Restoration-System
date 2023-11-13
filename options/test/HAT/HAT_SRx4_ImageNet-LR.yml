@@ -12,7 +12,7 @@ datasets:
   test_1:  # the 1st test dataset
     name: custom
     type: SingleImageDataset
-    dataroot_lq: '/home/piai/문서/miryeong/Multi/demo/Multi_in'
+    dataroot_lq: '/home/piai/문서/miryeong/Multi/demo/Multi_out'
     io_backend:
       type: disk
 

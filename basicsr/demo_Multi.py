@@ -15,7 +15,7 @@ import glob
 import cv2
 from PIL import Image
 from niqe import *
-
+import shutil
 
 from os import path as osp
 from basicsr.utils import get_env_info, get_root_logger, get_time_str, make_exp_dirs
@@ -30,7 +30,7 @@ from maxim import run_maxim
 # (터미널에 순서대로)
 # $export PYTHONPATH=/home/piai/문서/miryeong/Multi/:/home/piai/문서/miryeong/Multi/basicsr
 # basicsr 모델 모듈 설치 $python setup_basicsr.py develop --no_cuda_ext
-# maxim 모델 모듈 설치 $python setup_maxim.py devleop 
+# maxim 모델 모듈 설치 $python setup_maxim.py develop 
 # $python basicsr/demo_Multi.py
 
 
@@ -166,9 +166,13 @@ def main():
     files_source = glob.glob(os.path.join(input_path, '*')) # 테스트하려는 이미지 
     files_source.sort()
     
+    # 초기 이미지를 Output 폴더에 저장해놓은 다음 Output 폴더에 있는 이미지를 반복 갱신함
+    for f in files_source:
+        source_file = os.path.join(input_path, os.path.basename(f))
+        destination_file = os.path.join(output_path, os.path.basename(f))
+        shutil.copy2(source_file, destination_file)
     
-    
-    run = 1
+    run = 1 # 실행 여부
     print('Image Restration System에 오신 것을 환영합니다.\n')
     
     while(run):
@@ -201,15 +205,20 @@ def main():
             opt = parse_options(opt, is_train=False)
             hat(opt)
             print('super resolution 작업이 완료되었습니다.')
-            
+        
         
         elif mode == 4:
             maxim() # dehazing
             print('dehazing 작업이 완료되었습니다.')
             
-        
+            
+            
+        ## 시스템 실행 종료 여부 ###
         run = int(input('작업을 계속하시겠습니까? 원하는 옵션을 입력하세요. 0:종료 1:진행\n'))
-        if run == 0: print('Image Restoration System을 종료합니다.')
+        
+        if run == 0: 
+            print('Image Restoration System을 종료합니다.')
+            break
         
         
 if __name__ == '__main__':
