@@ -24,6 +24,9 @@ from basicsr.utils.options import dict2str
 from basicsr.data import create_dataloader, create_dataset
 from basicsr.models import build_model
 
+
+from maxim import run_maxim
+
 # basicsr 모듈 설치 (터미널에 순서대로)
 # export PYTHONPATH=/home/piai/문서/miryeong/Multi/:/home/piai/문서/miryeong/Multi/basicsr
 # python setup.py develop --no_cuda_ext
@@ -149,7 +152,8 @@ def hat(opt):
     
     return 1
 
-
+def maxim():
+    run_maxim()
 
 def main():
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
@@ -163,7 +167,7 @@ def main():
     
     
     # 원하는 옵션 선택 1:denoising 2:deblurring 3:super resolution
-    mode = int(input('어떤 작업을 실행하시겠습니까? 원하는 옵션을 입력하세요. 1:denosing 2:deblurring 3:super-resolution\n'))
+    mode = int(input('어떤 작업을 실행하시겠습니까? 원하는 옵션을 입력하세요. 1:denosing 2:deblurring 3:super-resolution 4:dehazing\n'))
     if mode == 1:
         opt = 'options/test/SIDD/NAFNet-width32.yml' # denoising
         opt = parse_options(opt, is_train=False)
@@ -173,8 +177,6 @@ def main():
         
         print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
     
-
-        
     elif mode == 2:
         opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
         opt = parse_options(opt, is_train=False)
@@ -191,7 +193,12 @@ def main():
         hat(opt)
         print('super resolution 작업이 완료되었습니다.')
         
-
+    
+    elif mode == 4:
+        maxim()
+        print('dehazing 작업이 완료되었습니다.')
+        
+        
 if __name__ == '__main__':
     main()
 
