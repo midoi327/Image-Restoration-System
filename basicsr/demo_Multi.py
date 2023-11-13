@@ -76,7 +76,7 @@ def nafnet(output_path, files_source, opt):
         
         output_filename = os.path.join(output_path, os.path.basename(f))
         cv2.imwrite(output_filename, sr_img)
-        print(f'{f}가 저장되었습니다.')
+        # print(f'{f}가 저장되었습니다.')
         
         
         ##3. niqe 점수 계산하기
@@ -110,8 +110,8 @@ def nafnet(output_path, files_source, opt):
         niqe_test_before += niqe_score_before
         niqe_test_after += niqe_score_after
         
-        print(f'전 NIQE: {niqe_score_before: .3f}')
-        print(f'후 NIQE: {niqe_score_after: .3f}')
+        # print(f'전 NIQE: {niqe_score_before: .3f}')
+        # print(f'후 NIQE: {niqe_score_after: .3f}')
         
         if niqe_score_after <= min_niqe_score:
             # print(f'{f}의 NIQE 점수는 {niqe_score_after}로 최저 점수를 갱신하였습니다.')
@@ -121,7 +121,7 @@ def nafnet(output_path, files_source, opt):
     niqe_test_before /= len(files_source)
     niqe_test_after /= len(files_source)
     
-    print(f'최소 NIQE 점수: {min_filename}이미지의 {min_niqe_score}점')
+    # print(f'최소 NIQE 점수: {min_filename}이미지의 {min_niqe_score}점')
 
     return niqe_test_before, niqe_test_after
 
@@ -167,37 +167,49 @@ def main():
     files_source.sort()
     
     
-    # 원하는 옵션 선택 1:denoising 2:deblurring 3:super resolution
-    mode = int(input('어떤 작업을 실행하시겠습니까? 원하는 옵션을 입력하세요. 1:denosing 2:deblurring 3:super-resolution 4:dehazing\n'))
-    if mode == 1:
-        opt = 'options/test/SIDD/NAFNet-width32.yml' # denoising
-        opt = parse_options(opt, is_train=False)
-        # parse options, set distributed setting, set ramdom seed
-        opt['num_gpu'] = torch.cuda.device_count()
-        niqe_before, niqe_after = nafnet(output_path, files_source, opt)
-        
-        # print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
     
-    elif mode == 2:
-        opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
-        opt = parse_options(opt, is_train=False)
-        opt['num_gpu'] = torch.cuda.device_count()
-        niqe_before, niqe_after = nafnet(output_path, files_source, opt)
-        print('deblurring 작업이 완료되었습니다.')
-        
-        # print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+    run = 1
+    print('Image Restration System에 오신 것을 환영합니다.\n')
     
+    while(run):
+        
+        # 원하는 옵션 선택 1:denoising 2:deblurring 3:super resolution
+        mode = int(input('어떤 작업을 실행하시겠습니까? 원하는 옵션을 입력하세요. 1:denosing 2:deblurring 3:super-resolution 4:dehazing\n'))
+        
+        if mode == 1:
+            opt = 'options/test/SIDD/NAFNet-width32.yml' # denoising
+            opt = parse_options(opt, is_train=False)
+            # parse options, set distributed setting, set ramdom seed
+            opt['num_gpu'] = torch.cuda.device_count()
+            niqe_before, niqe_after = nafnet(output_path, files_source, opt)
+            print('denoising 작업이 완료되었습니다.')
+            
+            # print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+        
+        elif mode == 2:
+            opt = 'options/test/REDS/NAFNet-width64.yml' # deblurring
+            opt = parse_options(opt, is_train=False)
+            opt['num_gpu'] = torch.cuda.device_count()
+            niqe_before, niqe_after = nafnet(output_path, files_source, opt)
+            print('deblurring 작업이 완료되었습니다.')
+            
+            # print(f'평균 NIQE 점수는 {niqe_before:.3f}점에서 {niqe_after:.3f}점으로 갱신되었습니다.')
+        
 
-    elif mode == 3:
-        opt = 'options/test/HAT/HAT_SRx4_ImageNet-LR.yml' # super resolution
-        opt = parse_options(opt, is_train=False)
-        hat(opt)
-        print('super resolution 작업이 완료되었습니다.')
+        elif mode == 3:
+            opt = 'options/test/HAT/HAT_SRx4_ImageNet-LR.yml' # super resolution
+            opt = parse_options(opt, is_train=False)
+            hat(opt)
+            print('super resolution 작업이 완료되었습니다.')
+            
         
-    
-    elif mode == 4:
-        maxim() # dehazing
-        print('dehazing 작업이 완료되었습니다.')
+        elif mode == 4:
+            maxim() # dehazing
+            print('dehazing 작업이 완료되었습니다.')
+            
+        
+        run = int(input('작업을 계속하시겠습니까? 원하는 옵션을 입력하세요. 0:종료 1:진행\n'))
+        if run == 0: print('Image Restoration System을 종료합니다.')
         
         
 if __name__ == '__main__':
