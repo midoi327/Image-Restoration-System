@@ -9,3 +9,4 @@ datasets
 basicsr.egg-info
 demo/
 maxim.egg-info
+tb_logger/
