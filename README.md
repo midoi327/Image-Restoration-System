@@ -38,7 +38,7 @@ https://drive.google.com/file/d/1AoUg8Lne4XmBxQbV37W_F4qDiyBUiV2S/view?usp=shari
 ---
 
 ## **📌 Quick Start**
-**denoising, deblurring 옵션을 원하는 대로 선택하는 demo.Multi.py 사용 방법**
+**이미지 개선 옵션을 원하는 대로 선택하는 demo.Multi.py 사용 방법**
 
 1. Required 실행 조건 만족
 2. demo/Multi_in 폴더에 노이즈 이미지 넣어놓기
@@ -53,7 +53,18 @@ python basicsr/demo_Multi.py
 
 ## **🖇️ FID300 데이터셋 이미지 테스트 수행 결과**
 
+* #### dehazing -> denoising -> denoising
 
+![6](https://github.com/midoi327/Image-Restoration-System/assets/50612011/6171e011-947e-4132-b335-e248da0919dd)
+
+![111](https://github.com/midoi327/Image-Restoration-System/assets/50612011/3fdb968b-1325-4580-9ca9-e3c5034c3f77)
+
+* #### dehazing -> denoising -> deblurring -> denoising -> deblurring
+
+![221](https://github.com/midoi327/Image-Restoration-System/assets/50612011/96437b9e-0c11-4734-8cc8-1211345b94ac)
+
+
+![209](https://github.com/midoi327/Image-Restoration-System/assets/50612011/35633aa8-bb86-4276-9112-f10034238cdd)
 
 
 
